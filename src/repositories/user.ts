@@ -1,13 +1,12 @@
 import * as Sequelize from 'sequelize';
-
 import { Models } from '../models/index';
-import { IUserInstance, IUserAttributes } from './../models/user';
-import { IUserRoleInstance, IUserRoleAttributes } from './../models/user-role';
 
 export const authenticate = async (email: string, password: string) => {
     const where: any = {
         email,
-        deletedAt: null
+        deletedAt: {
+            [Sequelize.Op.is]: null
+        }
     };
     if (password) {
         where.password = password;
@@ -50,7 +49,9 @@ export const getAll = async () => {
             include: [Models.Role]
         }],
         where: {
-            deletedAt: null
+            deletedAt: {
+                [Sequelize.Op.is]: null as any // Cast null as any to resolve type issue
+            }
         },
     });
 };
@@ -59,12 +60,18 @@ export const getByDepartmentId = async (departmentId: number, loggedInUserId: st
     return Models.User.findAll({
         attributes: ['id', 'firstName', 'lastName', 'email', 'contactNo', 'gender', 'pictureUrl',
             'managerId', 'departmentId', 'officeLocationId', 'isActive', 'createdAt', 'updatedAt'],
-        where: {
-            deletedAt: null,
-            [Sequelize.Op.or]: {
-                departmentId,
-                id: loggedInUserId
+        include: [{
+            model: Models.UserRole,
+            required: true, // Ensure the association is required for the query
+            where: {
+                userId: loggedInUserId // Filter by userId in UserRole
             }
+        }],
+        where: {
+            deletedAt: {
+                [Sequelize.Op.is]: null as any 
+            },
+            departmentId // Short for departmentId: departmentId
         },
     });
 };
@@ -79,7 +86,9 @@ export const findById = async (id: string) => {
         }],
         where: {
             id,
-            deletedAt: null
+            deletedAt: {
+                [Sequelize.Op.is]: null as any // Cast null as any to resolve type issue
+            }
         },
     });
 };
@@ -107,7 +116,7 @@ export const saveUser = async (user: any) => {
 };
 
 export const upsertUser = async (user: any) => {
-    return Models.User.insertOrUpdate(user, { returning: true });
+    return Models.User.upsert(user, { returning: true });
 };
 
 export const saveUserRoles = async (userRoles: any) => {
@@ -118,9 +127,9 @@ export const updateUser = async (id: string, user: any) => {
     return Models.User.update(user, { where: { id }});
 };
 
-export const deleteUserRoles = async (userId: string) => {
-    return Models.UserRole.destroy({ where: { userId }});
-};
+// export const deleteUserRoles = async (userId: string) => {
+//     return Models.UserRole.destroy({ where: { userId: userId } });
+// };
 
 export const deleteUser = async (loggedInUserId: string, userId: string) => {
     return Models.User.update({ deletedAt: new Date(), deletedBy: loggedInUserId }, { where: { id: userId }});

@@ -14,6 +14,7 @@ export const getAll = async (userId: number, startDate?: Date, endDate?: Date) =
     }
     if (endDate) {
         where.createdAt = {
+            ...where.createdAt,
             [Sequelize.Op.lte]: endDate
         };
     }
@@ -29,5 +30,5 @@ export const findById = async (id: number) => {
 };
 
 export const saveUserLocationTrail = async (userLocationTrail: IUserLocationTrailAttributes) => {
-    return Models.UserLocationTrail.insertOrUpdate(userLocationTrail);
+    return Models.UserLocationTrail.upsert(userLocationTrail);
 };

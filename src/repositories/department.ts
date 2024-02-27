@@ -29,7 +29,7 @@ export const findById = async (id: number) => {
 };
 
 export const saveDepartment = async (department: IDepartmentAttributes) => {
-    return Models.Department.insertOrUpdate(department);
+    return Models.Department.upsert(department);
 };
 
 export const deleteDepartment = async (id: number) => {

@@ -19,7 +19,9 @@ export const getByApplicationId = async (applicationId: string) => {
 export const saveApplicationWorkflowFieldPermission =
     async (applicationWorkflowFieldPermission: IApplicationWorkflowFieldPermissionAttributes) => {
         return Models.ApplicationWorkflowFieldPermission.upsert(applicationWorkflowFieldPermission, { returning: true })
-            .then((res: IApplicationWorkflowFieldPermissionInstance[]) => res[0]);
+            .then(([savedPermission, _]) => {
+                return savedPermission as IApplicationWorkflowFieldPermissionInstance;
+            });
     };
 
 export const deleteApplicationWorkflowFieldPermission = async (id: string) => {
