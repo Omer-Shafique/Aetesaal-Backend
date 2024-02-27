@@ -59,3 +59,14 @@ export const define = (sequelize: Sequelize): IUserLocationTrailModel => {
 
     return model as unknown as IUserLocationTrailModel;
 };
+
+export function defineUserLocationTrail(database: Sequelize): any {
+  const UserLocationTrail = define(database);
+
+  // Assuming you want to associate with other models
+  (UserLocationTrail as any).associate = (models: any) => {
+    (UserLocationTrail as any).belongsTo(models.User);
+  };
+
+  return UserLocationTrail;
+}

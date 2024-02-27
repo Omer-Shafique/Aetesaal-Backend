@@ -1,7 +1,6 @@
-import { DataTypes, Model, ModelCtor, Sequelize } from 'sequelize';
+import { DataTypes, Model, ModelStatic, Sequelize } from 'sequelize';
 
 import { IModelFactory } from './index';
-import { IUserModel } from './user';
 
 export interface IDepartmentAttributes {
     id: number;
@@ -14,7 +13,7 @@ export interface IDepartmentAttributes {
 
 export interface IDepartmentInstance extends Model<IDepartmentAttributes>, IDepartmentAttributes {}
 
-export interface IDepartmentModel extends ModelCtor<IDepartmentInstance> {
+export interface IDepartmentModel extends ModelStatic<IDepartmentInstance> {
     insertOrUpdate: any;
     associate: (models: IModelFactory) => void;
 }
@@ -50,10 +49,10 @@ export const define = (sequelize: Sequelize): IDepartmentModel => {
         }
     }, {
         freezeTableName: true
-    }) as IDepartmentModel;
+    }) as unknown as IDepartmentModel;
 
     model.associate = (models: IModelFactory) => {
-        model.belongsTo(models.User as unknown as ModelCtor<any>);
+        model.belongsTo(models.User as unknown as ModelStatic<any>);
     };
 
     return model;

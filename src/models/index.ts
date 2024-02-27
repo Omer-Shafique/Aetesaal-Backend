@@ -1,68 +1,72 @@
+// Import necessary modules and types
 import * as Sequelize from 'sequelize';
 import { Database } from './../bootstrap/database';
-import * as Role from './role'; // Import Role module from role.ts
-import * as User from './user';
-import * as Department from './department';
-import * as OfficeLocation from './office-location';
-import * as Group from './group';
-import * as UserGroup from './user-group';
-import * as ApplicationWorkflow from './application-workflow';
-import * as ApplicationFormSection from './application-form-section';
-import * as ApplicationFormField from './application-form-field';
-import * as ApplicationWorkflowPermission from './application-workflow-permission';
-import * as ApplicationWorkflowFieldPermission from './application-workflow-field-permission';
-import * as ApplicationExecution from './application-execution';
-import * as ApplicationExecutionForm from './application-execution-form';
-import * as ApplicationExecutionWorkflow from './application-execution-workflow';
-import * as Notification from './notification';
-import * as UserLocationTrail from './user-location-trail';
+import { define as defineRole, IRoleInstance } from './role'; 
+import { define as defineUser, IUserInstance } from './user';
+import { define as defineGroup, Group } from './group';
+import { NotificationModel } from './notification';
+import { define as defineDepartment, IDepartmentInstance } from './department'; // Updated import
+import { define as defineUserGroup, IUserGroupInstance } from './user-group'; // Updated import
+import { define as defineApplicationWorkflow, IApplicationWorkflowInstance } from './application-workflow'; // Updated import
+import { define as defineApplicationFormSection, ApplicationFormSectionInstance } from './application-form-section'; // Updated import
+import { define as defineApplicationFormField, IApplicationFormFieldInstance } from './application-form-field';
+import { define as defineApplicationWorkflowPermission, IApplicationWorkflowPermissionInstance } from './application-workflow-permission';
+import { define as defineApplicationWorkflowFieldPermission, IApplicationWorkflowFieldPermissionInstance } from './application-workflow-field-permission';
+import { define as defineApplicationExecution, IApplicationExecutionInstance } from './application-execution';
+import { define as defineApplicationExecutionForm, IApplicationExecutionFormInstance } from './application-execution-form';
+import { define as defineApplicationExecutionWorkflow, IApplicationExecutionWorkflowInstance } from './application-execution-workflow';
+import { define as defineUserLocationTrail, IUserLocationTrailInstance } from './user-location-trail';
+import { UserRole } from './user-role';
 
 // Define the IModelFactory interface including Role model
 export interface IModelFactory {
   Lookup: any;
-  UserRole: ModelStatic<Model<any, any>>;
-  Role: Role.IRoleModel;
-  User: User.IUserModel;
-  Department: Department.IDepartmentModel;
-  OfficeLocation: OfficeLocation.IOfficeLocationModel;
-  Group: Group.IGroupModel;
-  UserGroup: UserGroup.IUserGroupModel;
-  Application: Sequelize.ModelCtor<any>;
-  ApplicationWorkflow: ApplicationWorkflow.IApplicationWorkflowModel;
-  ApplicationFormSection: Sequelize.ModelCtor<ApplicationFormSection.ApplicationFormSectionInstance>;
-  ApplicationFormField: ApplicationFormField.IApplicationFormFieldModel;
-  ApplicationWorkflowPermission: ApplicationWorkflowPermission.IApplicationWorkflowPermissionModel;
-  ApplicationWorkflowFieldPermission: ApplicationWorkflowFieldPermission.IApplicationWorkflowFieldPermissionModel;
-  ApplicationExecution: Sequelize.ModelCtor<ApplicationExecution.IApplicationExecutionInstance>;
-  ApplicationExecutionForm: ApplicationExecutionForm.IApplicationExecutionFormModel;
-  ApplicationExecutionWorkflow: ApplicationExecutionWorkflow.IApplicationExecutionWorkflowModel;
-  Notification: Notification.INotificationModel;
-  UserLocationTrail: UserLocationTrail.IUserLocationTrailModel;
+  UserRole: Sequelize.ModelStatic<IRoleInstance>;
+  Role: Sequelize.ModelStatic<IRoleInstance>;
+  User: Sequelize.ModelStatic<IUserInstance>;
+  Department: Sequelize.ModelStatic<IDepartmentInstance>;
+  OfficeLocation: any; // Updated with correct type
+  Group: Sequelize.ModelStatic<Group>;
+  UserGroup: Sequelize.ModelStatic<IUserGroupInstance>;
+  Application: Sequelize.ModelStatic<any>;
+  ApplicationWorkflow: Sequelize.ModelStatic<IApplicationWorkflowInstance>;
+  ApplicationFormSection: Sequelize.ModelStatic<ApplicationFormSectionInstance>; // Updated type
+  ApplicationFormField: Sequelize.ModelStatic<IApplicationFormFieldInstance>;
+  ApplicationWorkflowPermission: Sequelize.ModelStatic<IApplicationWorkflowPermissionInstance>;
+  ApplicationWorkflowFieldPermission: Sequelize.ModelStatic<IApplicationWorkflowFieldPermissionInstance>;
+  ApplicationExecution: Sequelize.ModelStatic<IApplicationExecutionInstance>;
+  ApplicationExecutionForm: Sequelize.ModelStatic<IApplicationExecutionFormInstance>;
+  ApplicationExecutionWorkflow: Sequelize.ModelStatic<IApplicationExecutionWorkflowInstance>;
+  Notification: typeof NotificationModel;
+  UserLocationTrail: Sequelize.ModelStatic<IUserLocationTrailInstance>; // Updated type
   ListOfValue: any;
   LookupData: any;
 }
 
 // Define the models object including Role model
 const models: IModelFactory = {
-  Role: Role.define(Database),
-  User: User.define(Database),
-  Department: Department.define(Database),
-  OfficeLocation: OfficeLocation.define(Database),
-  Group: Group.define(Database),
-  UserGroup: UserGroup.define(Database),
+  Role: defineRole(Database),
+  User: defineUser(Database),
+  Department: defineDepartment(Database),
+  OfficeLocation: {}, // Updated with correct initialization
+  Group: defineGroup(Database),
+  UserGroup: defineUserGroup(Database),
   Application: defineApplicationModel(Database),
-  ApplicationWorkflow: ApplicationWorkflow.define(Database),
-  ApplicationFormSection: ApplicationFormSection.define(Database),
-  ApplicationFormField: ApplicationFormField.define(Database),
-  ApplicationWorkflowPermission: ApplicationWorkflowPermission.define(Database),
-  ApplicationWorkflowFieldPermission: ApplicationWorkflowFieldPermission.define(Database),
-  ApplicationExecution: ApplicationExecution.define(Database),
-  ApplicationExecutionForm: ApplicationExecutionForm.define(Database),
-  ApplicationExecutionWorkflow: ApplicationExecutionWorkflow.define(Database),
-  Notification: Notification.define(Database),
-  UserLocationTrail: UserLocationTrail.define(Database),
-  ListOfValue: {}, // Placeholder initialization for ListOfValue interface
-  LookupData: {}, // Placeholder initialization for LookupData interface
+  ApplicationWorkflow: defineApplicationWorkflow(Database),
+  ApplicationFormSection: defineApplicationFormSection(Database),
+  ApplicationFormField: defineApplicationFormField(Database),
+  ApplicationWorkflowPermission: defineApplicationWorkflowPermission(Database),
+  ApplicationWorkflowFieldPermission: defineApplicationWorkflowFieldPermission(Database),
+  ApplicationExecution: defineApplicationExecution(Database),
+  ApplicationExecutionForm: defineApplicationExecutionForm(Database),
+  ApplicationExecutionWorkflow: defineApplicationExecutionWorkflow(Database),
+  Notification: NotificationModel,
+  UserLocationTrail: defineUserLocationTrail(Database) as unknown as Sequelize.ModelStatic<IUserLocationTrailInstance>,
+  ListOfValue: {}, 
+  LookupData: {},
+  Lookup: undefined,
+  UserRole: UserRole(Database) as unknown as Sequelize.ModelStatic<IRoleInstance>
+
 };
 
 // Associate models if needed
@@ -78,7 +82,7 @@ Object.keys(models).forEach((key: keyof IModelFactory) => {
 export const Models: IModelFactory = models;
 
 // Function to define the application model
-function defineApplicationModel(database: Sequelize.Sequelize): Sequelize.ModelCtor<any> {
+function defineApplicationModel(database: Sequelize.Sequelize): Sequelize.ModelStatic<any> {
   // Define your application model here
   // Example:
   const Application = database.define('Application', {

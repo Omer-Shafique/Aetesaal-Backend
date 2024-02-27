@@ -1,5 +1,4 @@
-import { Model, DataTypes } from 'sequelize';
-import { Sequelize } from 'sequelize';
+import { Sequelize, DataTypes, Model } from 'sequelize';
 import { IUserRoleInstance } from './user-role';
 
 // Define the interface for office location attributes
@@ -47,3 +46,8 @@ export const OfficeLocation = (sequelize: Sequelize) => {
     freezeTableName: true
   });
 };
+
+// Define the return type of the define function
+export function define(_Database: Sequelize): Model<IOfficeLocationInstance, IOfficeLocationAttributes> {
+  throw new Error('Function not implemented.');
+}

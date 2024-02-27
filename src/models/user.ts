@@ -1,6 +1,7 @@
 import { Sequelize, Model, UUIDV4, DataTypes, ModelStatic } from 'sequelize';
 import { IUserRoleInstance } from './user-role';
 
+// Define the attributes interface for the User model
 export interface IUserAttributes {
   id: string;
   firstName: string;
@@ -23,10 +24,12 @@ export interface IUserAttributes {
   deletedBy: string;
 }
 
+// Define the User model interface
 export interface IUserInstance extends Model<IUserAttributes>, IUserAttributes {
-  userRoles: IUserRoleInstance[]; // Corrected interface to use IUserRoleInstance instead of IUserRoleAttributes
+  userRoles: IUserRoleInstance[]; // Assuming this association exists
 }
 
+// Define the function to create the User model
 export const define = (sequelize: Sequelize): ModelStatic<IUserInstance> => {
   const User = sequelize.define<IUserInstance>(
     'User',
@@ -113,6 +116,7 @@ export const define = (sequelize: Sequelize): ModelStatic<IUserInstance> => {
     },
   ) as ModelStatic<IUserInstance>;
 
+  // Define associations if needed
   (User as any).associate = (models: any) => {
     User.hasMany(models.UserRole);
   };

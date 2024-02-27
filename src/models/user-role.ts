@@ -1,22 +1,15 @@
 import { Model, DataTypes, Sequelize } from 'sequelize';
 
-// Define the interface for user role attributes
 export interface IUserRoleAttributes {
   id?: number;
   roleId?: number;
   userId: string;
   isActive: boolean;
-  // Include any additional attributes here
 }
 
-// Define the interface for user role instance extending sequelize Model
-export interface IUserRoleInstance extends Model<IUserRoleAttributes>, IUserRoleAttributes {
-  // Add any custom methods or properties here
-}
+export interface IUserRoleInstance extends Model<IUserRoleAttributes>, IUserRoleAttributes {}
 
-// Define the user role model
 export const UserRole = (sequelize: Sequelize): void => {
-  // Define the model attributes
   sequelize.define<IUserRoleInstance>('UserRole', {
     id: {
       type: DataTypes.INTEGER,
@@ -44,7 +37,6 @@ export const UserRole = (sequelize: Sequelize): void => {
       allowNull: false
     }
   }, {
-    // Define additional model options
     freezeTableName: true
   });
 };

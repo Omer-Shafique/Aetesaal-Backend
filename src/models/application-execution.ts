@@ -89,7 +89,7 @@ export const define = (sequelize: Sequelize): ModelDefined<IApplicationExecution
     }
   ) as ModelDefined<IApplicationExecutionInstance, IApplicationExecutionAttributes>;
 
-  ApplicationExecution.belongsTo<IUserInstance>(sequelize.models.User, { foreignKey: 'createdBy', as: 'createdByUser' });
+  // ApplicationExecution.belongsTo<IUserInstance>(sequelize.models.User, { foreignKey: 'createdBy', as: 'createdByUser' });
 
   return ApplicationExecution;
 };

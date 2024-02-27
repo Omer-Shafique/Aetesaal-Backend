@@ -1,5 +1,7 @@
-import { Sequelize, Model, DataTypes, ModelCtor } from 'sequelize';
+import { Sequelize, Model, DataTypes, ModelStatic } from 'sequelize';
 import { IModelFactory } from './index';
+import { IUserInstance } from './user'; // Import the IUserInstance interface
+import { IGroupInstance } from './group'; // Import the IGroupInstance interface
 
 export interface IUserGroupAttributes {
     id?: number;
@@ -10,7 +12,7 @@ export interface IUserGroupAttributes {
 
 export interface IUserGroupInstance extends Model<IUserGroupAttributes>, IUserGroupAttributes {}
 
-export interface IUserGroupModel extends ModelCtor<IUserGroupInstance> {
+export interface IUserGroupModel extends ModelStatic<IUserGroupInstance> {
     associate: (models: IModelFactory) => void;
 }
 
@@ -27,7 +29,7 @@ export const define = (sequelize: Sequelize): IUserGroupModel => {
             allowNull: false
         },
         userId: {
-            type: DataTypes.STRING, // Changed to STRING as UUID might not be supported
+            type: DataTypes.STRING,
             allowNull: false
         },
         isActive: {
@@ -40,8 +42,9 @@ export const define = (sequelize: Sequelize): IUserGroupModel => {
 
     // Define associations separately
     UserGroup.associate = (models: IModelFactory) => {
-        UserGroup.belongsTo(models.User as unknown as ModelCtor<Model<any, any>>);
-        UserGroup.belongsTo(models.Group as ModelCtor<Model<any, any>>);
+        // Ensure the correct types are used for the associations
+        UserGroup.belongsTo(models.User as unknown as ModelStatic<IUserInstance>);
+        UserGroup.belongsTo(models.Group as unknown as ModelStatic<IGroupInstance>);
     };
     return UserGroup;
 };

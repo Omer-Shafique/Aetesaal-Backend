@@ -1,6 +1,6 @@
 import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
-import { IUserModel } from './user';
 
+// Define the attributes interface for the Notification model
 interface NotificationAttributes {
   id: number;
   userId: number;
@@ -10,8 +10,10 @@ interface NotificationAttributes {
   updatedAt: Date;
 }
 
+// Define the optional attributes for creating a new Notification
 interface NotificationCreationAttributes extends Optional<NotificationAttributes, 'id'> {}
 
+// Define the Notification model class
 class NotificationModel extends Model<NotificationAttributes, NotificationCreationAttributes> implements NotificationAttributes {
   public id!: number;
   public userId!: number;
@@ -21,6 +23,7 @@ class NotificationModel extends Model<NotificationAttributes, NotificationCreati
   public readonly updatedAt!: Date;
 }
 
+// Initialize the Notification model with Sequelize
 const sequelize = new Sequelize('sqlite::memory:');
 
 NotificationModel.init(
@@ -57,4 +60,5 @@ NotificationModel.init(
   }
 );
 
+// Export the Notification model
 export { NotificationModel };
