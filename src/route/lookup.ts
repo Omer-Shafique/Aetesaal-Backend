@@ -1,6 +1,6 @@
-import * as Router from 'koa-router';
-
+import Router from 'koa-router';
 import * as ctrl from '../controller/lookup';
+import { Context } from 'koa';
 import authentication from '../middleware/authentication';
 import authorization from '../middleware/authorization';
 import { Role } from '../enum/role';
@@ -9,20 +9,44 @@ const router = new Router({
   prefix: `/api/lookup`,
 });
 
+// Apply authentication middleware to all routes
 router.use(authentication);
 
-router.get('/', ctrl.getAll);
+// Define routes
+router.get('/', async (ctx: Context) => {
+  await ctrl.getAll(ctx);
+});
 
-router.get('/:lookupId/data', ctrl.findByLookupId);
+router.get('/:lookupId/data', async (ctx: Context) => {
+  await ctrl.findByLookupId(ctx);
+});
 
-router.get('/lookup-data/:lookupDataId', ctrl.findLookupDataById);
+router.get('/lookup-data/:lookupDataId', async (ctx: Context) => {
+  await ctrl.findLookupDataById(ctx);
+});
 
-router.post('/', authorization(false, [Role.SUPER_ADMIN]), ctrl.saveLookup);
+router.post('/', async (ctx: Context) => {
+  await authorization(false, [Role.SUPER_ADMIN])(ctx, async () => {
+    await ctrl.saveLookup(ctx);
+  });
+});
 
-router.post('/:lookupId/data', authorization(false, [Role.SUPER_ADMIN]), ctrl.saveLookupData);
+router.post('/:lookupId/data', async (ctx: Context) => {
+  await authorization(false, [Role.SUPER_ADMIN])(ctx, async () => {
+    await ctrl.saveLookupData(ctx);
+  });
+});
 
-router.delete('/:id', authorization(false, [Role.SUPER_ADMIN]), ctrl.deleteLookup);
+router.delete('/:id', async (ctx: Context) => {
+  await authorization(false, [Role.SUPER_ADMIN])(ctx, async () => {
+    await ctrl.deleteLookup(ctx);
+  });
+});
 
-router.delete('/:lookupId/data/:id', authorization(false, [Role.SUPER_ADMIN]), ctrl.deleteLookupData);
+router.delete('/:lookupId/data/:id', async (ctx: Context) => {
+  await authorization(false, [Role.SUPER_ADMIN])(ctx, async () => {
+    await ctrl.deleteLookupData(ctx);
+  });
+});
 
 export default router.routes();
