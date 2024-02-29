@@ -1,13 +1,11 @@
 import Router from 'koa-router';
+import { Context, ParameterizedContext } from 'koa'; 
 import * as ctrl from '../controller/lookup';
-import { Context } from 'koa';
 import authentication from '../middleware/authentication';
 import authorization from '../middleware/authorization';
 import { Role } from '../enum/role';
 
-const router = new Router({
-  prefix: `/api/lookup`,
-});
+const router = new Router<ParameterizedContext, Context>(); 
 
 // Apply authentication middleware to all routes
 router.use(authentication);
