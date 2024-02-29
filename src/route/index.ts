@@ -1,5 +1,5 @@
 import compose from 'koa-compose';
-import Router from 'koa-router';
+import Router, { IMiddleware } from 'koa-router';
 import { methodNotAllowed, notImplemented } from 'boom';
 import ping from './ping';
 import auth from './auth';
@@ -22,15 +22,9 @@ const router = new Router({
   prefix: '/api/v1',
 });
 
-const routes = router.routes();
-const allowedMethods = router.allowedMethods({
-  throw: true,
-  methodNotAllowed: () => methodNotAllowed(),
-  notImplemented: () => notImplemented(),
-});
-const routesToExport = [
-  routes,
-  // allowedMethods,
+// Extract middleware functions from router instances
+const routesToExport: IMiddleware<any, {}>[] = [
+  router.routes(),
   ping,
   auth,
   file,
@@ -47,6 +41,6 @@ const routesToExport = [
   report,
   userLocationTrail,
   config
-];
+].filter((item): item is IMiddleware<any, {}> => typeof item !== 'function');
 
 export default () => compose(routesToExport);
