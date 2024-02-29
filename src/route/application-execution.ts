@@ -1,12 +1,12 @@
 // application-execution.ts
 
-import * as Router from 'koa-router';
+import Router from 'koa-router';
 import { Context } from 'koa';
 import * as ctrl from '../controller/application';
 import authentication from '../middleware/authentication';
 import authorization from '../middleware/authorization';
 import { Role } from '../enum/role';
-import { CustomMiddleware } from '../middleware/custom-middleware'; 
+import { CustomMiddleware } from '../middleware/custom-middleware';
 
 const router = new Router<any, any>({ prefix: `/api/application-execution` });
 

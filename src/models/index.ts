@@ -1,7 +1,7 @@
 // Import necessary modules and types
 import * as Sequelize from 'sequelize';
 import { Database } from './../bootstrap/database';
-import { define as defineRole, IRoleInstance } from './role'; 
+import { define as defineRole, IRoleInstance } from './role';
 import { define as defineUser, IUserInstance } from './user';
 import { define as defineGroup, Group } from './group';
 import { NotificationModel } from './notification';
@@ -62,7 +62,7 @@ const models: IModelFactory = {
   ApplicationExecutionWorkflow: defineApplicationExecutionWorkflow(Database),
   Notification: NotificationModel,
   UserLocationTrail: defineUserLocationTrail(Database) as unknown as Sequelize.ModelStatic<IUserLocationTrailInstance>,
-  ListOfValue: {}, 
+  ListOfValue: {},
   LookupData: {},
   Lookup: undefined,
   UserRole: UserRole(Database) as unknown as Sequelize.ModelStatic<IRoleInstance>

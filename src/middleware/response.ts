@@ -1,28 +1,26 @@
-import { Context } from 'koa';
 import * as fs from 'fs';
 import * as path from 'path';
+import { Context } from 'koa';
 import compose from 'koa-compose';
 import { IResponse, IResponseObject } from '../interface/response';
 
-const handler = async (ctx: Context, next: () => void) => {
+const responseHandler = async (ctx: Context, next: () => Promise<void>) => {
   if (ctx.state.data) {
-    // Define the structure of ctx.body
     const responseBody: IResponse = {
       meta: {
         status: ctx.status,
         message: ctx.state.message || 'success',
       },
-      // Include the data property
       data: ctx.state.data,
-      body (): IResponseObject {
+      body: function (_status: number): IResponseObject {
         throw new Error('Function not implemented.');
       }
     };
-    // If ctx.pagination exists and method is GET, include pagination information
+    
     if (ctx.pagination && ctx.method === 'GET') {
       responseBody.meta.limit = ctx.pagination.limit;
       responseBody.meta.offset = ctx.pagination.offset;
-      responseBody.meta.totalCount = ctx.pagination.totalCount; // Assuming totalCount is a property of ctx.pagination
+      responseBody.meta.totalCount = ctx.pagination.totalCount || 0; // Ensure totalCount is set or default to 0
     }
     ctx.body = responseBody;
   } else {
@@ -34,4 +32,4 @@ const handler = async (ctx: Context, next: () => void) => {
   await next();
 };
 
-export default () => compose([handler]);
+export default () => compose([responseHandler]);

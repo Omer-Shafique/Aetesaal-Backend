@@ -1,9 +1,6 @@
-import * as Router from 'koa-router';
-
+import Router from 'koa-router';
 import * as ctrl from '../controller/department';
 import authentication from '../middleware/authentication';
-import authorization from '../middleware/authorization';
-import { Role } from '../enum/role';
 
 const router = new Router({
   prefix: `/api/department`,
@@ -11,10 +8,23 @@ const router = new Router({
 
 router.use(authentication);
 
-router.get('/', ctrl.getAll);
+router.get('/', async (ctx, next) => {
+  // Your route handler logic here
+  console.log(ctx.request.query); // Accessing query parameters
+  await next(); // Calling the next middleware
+});
 
-router.post('/', ctrl.saveDepartment);
+router.post('/', async (ctx, next) => {
+  // Your route handler logic here
+  console.log(ctx.request.body); // Accessing request body
+  await next(); // Calling the next middleware
+});
 
-router.delete('/:id', ctrl.deleteDepartment);
+router.delete('/:id', async (ctx, next) => {
+  // Your route handler logic here
+  const departmentId = ctx.params.id; // Accessing URL parameters
+  console.log(`Deleting department with ID: ${departmentId}`);
+  await next(); // Calling the next middleware
+});
 
 export default router.routes();

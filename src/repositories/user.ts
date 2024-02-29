@@ -69,7 +69,7 @@ export const getByDepartmentId = async (departmentId: number, loggedInUserId: st
         }],
         where: {
             deletedAt: {
-                [Sequelize.Op.is]: null as any 
+                [Sequelize.Op.is]: null as any
             },
             departmentId // Short for departmentId: departmentId
         },

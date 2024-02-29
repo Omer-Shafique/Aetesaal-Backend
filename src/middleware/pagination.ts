@@ -1,11 +1,10 @@
-import * as boom from 'boom';
 import * as Joi from 'joi';
 import { Context } from 'koa';
 import { validate } from '../validations/index';
 import { IPaginationOpts } from '../interface/request';
 import PaginationDefaults from '../constants/pagination';
 
-export default async (ctx: Context, next: () => void) => {
+const paginationMiddleware = async (ctx: Context, next: () => Promise<void>) => {
   const pagination: IPaginationOpts = {
     limit: typeof ctx.query.limit === 'string' ? parseInt(ctx.query.limit, 10) : PaginationDefaults.limit,
     offset: typeof ctx.query.offset === 'string' ? parseInt(ctx.query.offset, 10) : PaginationDefaults.offset,
@@ -14,20 +13,10 @@ export default async (ctx: Context, next: () => void) => {
   };
 
   const schema: Joi.SchemaMap = {
-    limit: Joi.alternatives()
-      .try(Joi.number().integer(), Joi.any())
-      .default(PaginationDefaults.limit),
-    offset: Joi.alternatives()
-      .try(Joi.number().integer(), Joi.any())
-      .default(PaginationDefaults.offset),
-    sortBy: Joi.string()
-      .trim()
-      .allow('')
-      .default(PaginationDefaults.sortBy),
-    sortOrder: Joi.string()
-      .trim()
-      .allow('')
-      .default(PaginationDefaults.sortOrder)
+    limit: Joi.number().integer().default(PaginationDefaults.limit),
+    offset: Joi.number().integer().default(PaginationDefaults.offset),
+    sortBy: Joi.string().trim().allow('').default(PaginationDefaults.sortBy),
+    sortOrder: Joi.string().trim().allow('').default(PaginationDefaults.sortOrder)
   };
 
   ctx.pagination = await validate(pagination, schema);
@@ -48,3 +37,5 @@ export default async (ctx: Context, next: () => void) => {
   }
   await next();
 };
+
+export default paginationMiddleware;

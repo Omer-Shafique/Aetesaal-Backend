@@ -90,25 +90,22 @@
 //     });
 // };
 
-
 // export const findByIdForValidation = async (id: string) => {
 //     return Models.ApplicationExecution.findOne({
 //         attributes: ['id', 'applicationId', 'startedAt', 'status', 'createdAt', 'createdBy', 'updatedAt', 'latitude', 'longitude'],
 //         where: {
 //             isActive: true,
-//             // id: id 
+//             // id: id
 //         },
 //     });
 // };
-
-
 
 // export const findById = async (id: string) => {
 //     try {
 //         const execution = await Models.ApplicationExecution.findOne({
 //             where: {
 //                 isActive: true,
-//                 // id: id 
+//                 // id: id
 //             },
 //             include: [
 //                 {
@@ -675,7 +672,6 @@
 //     return Models.ApplicationExecution.findAll({ where: { /* No filtering by id */ } });
 // };
 
-
 // export const saveApplicationExecution = async (applicationExecution: IApplicationExecutionAttributes) => {
 //     return Models.ApplicationExecution.upsert(applicationExecution, { returning: true })
 //         .then((res) => res[0]);
@@ -688,25 +684,6 @@
 // export const deleteApplicationExecution = async (id: string, updatedBy: string) => {
 //     return Models.ApplicationExecution.update({ isActive: false, updatedBy }, { where: { /* No filtering by id */ } });
 // };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 import { Sequelize } from 'sequelize';
 import { Models } from '../models/index';
@@ -798,25 +775,22 @@ export const getByApplicationId = async (applicationId: string) => {
     });
 };
 
-
 export const findByIdForValidation = async () => {
     return Models.ApplicationExecution.findOne({
         attributes: ['id', 'applicationId', 'startedAt', 'status', 'createdAt', 'createdBy', 'updatedAt', 'latitude', 'longitude'],
         where: {
             isActive: true,
-            // id: id 
+            // id: id
         },
     });
 };
-
-
 
 export const findById = async () => {
     try {
         const execution = await Models.ApplicationExecution.findOne({
             where: {
                 isActive: true,
-                // id: id 
+                // id: id
             },
             include: [
                 {
@@ -1382,7 +1356,6 @@ export const getExecutionIdsByStartEndDate = async (
 export const findByIds = async () => {
     return Models.ApplicationExecution.findAll({ where: { /* No filtering by id */ } });
 };
-
 
 export const saveApplicationExecution = async (applicationExecution: IApplicationExecutionAttributes) => {
     return Models.ApplicationExecution.upsert(applicationExecution, { returning: true })
