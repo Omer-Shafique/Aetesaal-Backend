@@ -17,7 +17,8 @@
     "ignoreDeprecations": "5.0", 
     "typeRoots": ["node_modules/@types"],
     "outDir": "dist",
-    "rootDirs": ["src"]
+    "rootDirs": ["src"],
+    "esModuleInterop": true  // Add this line
   },
   "include": ["src/**/*"]
 }
