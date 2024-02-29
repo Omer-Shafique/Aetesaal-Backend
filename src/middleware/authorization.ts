@@ -5,7 +5,7 @@ const _ = require('lodash');
 import config from '../config/index';
 
 const authorization = (isPublic: boolean = true, allowedRoles: string[] = []) => {
-  return async (ctx: Context, next: () => void) => {
+  return async (ctx: Context, next: () => Promise<void>) => {
     if (isPublic) {
       const accessKey = ctx.header['access-key'];
       if (!accessKey || accessKey !== config.apiAccessKeys.app) {
