@@ -1,11 +1,10 @@
 import * as boom from 'boom';
 import * as jwt from 'jsonwebtoken';
-import { Context } from 'koa';
+import { Context, Middleware } from 'koa'; // Import Koa's Context and Middleware types
 import * as config from '../config';
 import * as userRepo from '../repositories/user';
-import { CustomMiddleware } from './custom-middleware'; // Import the custom middleware type
 
-const authentication: CustomMiddleware = async (ctx: Context, next: () => Promise<void>) => {
+const authentication: Middleware = async (ctx: Context, next: () => Promise<void>) => {
   const token = ctx.header.authorization;
   const platform = ctx.header.platform;
   const appVersionHeader = ctx.header.appversion;

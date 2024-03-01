@@ -1,5 +1,4 @@
-import * as Router from 'koa-router';
-
+import Router from 'koa-router';
 import * as ctrl from '../controller/auth';
 import * as userCtrl from '../controller/user';
 import authentication from '../middleware/authentication';
@@ -10,7 +9,7 @@ const router = new Router({
   prefix: `/api/user`,
 });
 
-router.use(authentication);
+router.use(authentication); 
 
 router.get('/', authorization(false, [Role.SUPER_ADMIN, Role.USER]), userCtrl.getAll);
 

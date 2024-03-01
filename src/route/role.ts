@@ -1,20 +1,37 @@
-import * as Router from 'koa-router';
-
-import * as ctrl from '../controller/role';
+import Router from 'koa-router';
+import * as ctrl from '../controller/user-location-trail';
 import authentication from '../middleware/authentication';
-import authorization from '../middleware/authorization';
+import { Context, Next } from 'koa';
 import { Role } from '../enum/role';
 
+interface IAuthorizationContext extends Context {
+  userRole: Role;
+}
+
 const router = new Router({
-  prefix: `/api/role`,
+  prefix: '/api/user-location-trail',
 });
 
-router.use(authentication);
+const authorizationMiddleware = (allowGuest: boolean, allowedRoles: Role[]): any => {
+  return async (ctx: IAuthorizationContext, next: Next) => {
+    if (!allowGuest && !ctx.state.user) {
+      return ctx.unauthorized();
+    }
 
-router.get('/', ctrl.getAll);
+    if (allowedRoles.length > 0 && allowedRoles.indexOf(ctx.state.user.role) === -1) {
+      return ctx.forbidden();
+    }
 
-router.post('/', authorization(false, [Role.SUPER_ADMIN]), ctrl.saveRole);
+    await next();
+  };
+};
 
-router.delete('/:id', authorization(false, [Role.SUPER_ADMIN]), ctrl.deleteRole);
+router.get('/', authorizationMiddleware(false, [Role.SUPER_ADMIN]), async (ctx, next) => {
+  // Your route handler logic here
+});
+
+router.post('/', async (ctx, next) => {
+  // Your route handler logic here
+});
 
 export default router.routes();
