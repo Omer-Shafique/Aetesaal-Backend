@@ -9,7 +9,7 @@ const router = new Router({
   prefix: `/api/user`,
 });
 
-router.use(authentication);
+router.use(authentication); 
 
 router.get('/', authorization(false, [Role.SUPER_ADMIN, Role.USER]), userCtrl.getAll);
 
