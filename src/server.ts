@@ -1,10 +1,10 @@
 import * as Bunyan from 'bunyan';
-import * as Koa from 'koa';
-import * as koaBody from 'koa-body';
-import * as helmet from 'koa-helmet';
+import Koa from 'koa';
+import koaBody from 'koa-body';
+import helmet from 'koa-helmet';
 import * as mount from 'koa-mount';
 import * as serve from 'koa-static';
-import * as cors from 'koa2-cors';
+import cors from 'koa2-cors';
 
 import config from './config/index';
 import pagination from './middleware/pagination';
@@ -12,7 +12,7 @@ import errorMiddleware from './middleware/error';
 import response from './middleware/response';
 import routes from './route/index';
 import { Logger } from './utils/logger';
-import compose = require('koa-compose');
+import compose from 'koa-compose';
 
 const whitelist = [
   'http://localhost:4200',
@@ -42,7 +42,7 @@ export async function startServer(log: Bunyan) {
   // Register middlewares
   // Note: It is important to have response middleware first so that it can
   // catch errors and respond accordingly.
-  app.use(helmet.noCache());
+  app.use(helmet());
   app.use(cors({ origin: checkOriginAgainstWhitelist }));
   app.use(koaBody({ jsonLimit: '10mb', formLimit: '50mb', multipart: true, json: true }));
   app.use(pagination);
@@ -60,13 +60,13 @@ export async function startServer(log: Bunyan) {
 
   return new Promise<void>((resolve, reject) => {
     const p = process.env.PORT || config.server.port;
-    app.listen(p, () => {
+    const server = app.listen(p, () => {
       log.info('server started on port %d with env=%s', p, config.env);
 
       resolve();
     });
 
-    app.on('error', err => {
+    server.on('error', err => {
       reject(err);
     });
   });
