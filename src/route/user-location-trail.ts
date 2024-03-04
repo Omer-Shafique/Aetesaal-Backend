@@ -1,36 +1,34 @@
-import Router, { Middleware } from 'koa-router';
+import Router, { IMiddleware } from 'koa-router';
 import * as ctrl from '../controller/user-location-trail';
 import authentication from '../middleware/authentication';
 import authorization from '../middleware/authorization';
 import { Role } from '../enum/role';
-import { Context, DefaultContext, DefaultState, Next, ParameterizedContext } from 'koa';
+import { Context, DefaultContext, DefaultState, Middleware, Next, ParameterizedContext } from 'koa';
 
-// Define MyContext by adding custom properties to Context
 interface MyContext extends Context {
-  // Add any custom properties here
-  preresponse?: any;
-  token?: any;
-  accessToken?: any;
-  pagination?: any;
+  preresponse: any;
+  token: any;
+  accessToken: any;
+  pagination: any;
+  state: DefaultState; 
 }
 
 const router = new Router<MyContext>({
   prefix: `/api/user-location-trail`,
 });
 
-// Middleware function using MyContext
 const authMiddleware: Middleware<MyContext> = async (ctx: ParameterizedContext<DefaultState, DefaultContext, MyContext>, next: Next) => {
-  await authentication(ctx, next);
+  await authentication(ctx, () => next());
 };
 
-router.use(authMiddleware); // Apply authentication middleware
-
-const authorizedGetAll: Middleware<MyContext> = async (ctx : any, next: any) => {
-  await authorization(false, [Role.SUPER_ADMIN])(ctx, next); // Assuming authorization returns a function to handle the next middleware
-  await ctrl.getAll(ctx, next);
+router.use(authMiddleware); 
+const authorizedGetAll: Middleware<MyContext> = async (ctx: any , next: Next) => {
+  await authorization(true, [Role.SUPER_ADMIN])(ctx, () => next());
+  await ctrl.getAll(ctx, () => {});
 };
 
 router.get('/', authorizedGetAll);
-router.post('/', ctrl.saveUserLocationTrail); 
+
+router.post('/', (ctx: any, next: Next) => ctrl.saveUserLocationTrail(ctx, next));
 
 export default router.routes();
