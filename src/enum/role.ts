@@ -3,5 +3,6 @@ export enum Role {
   USER = 'user',
   BILLING = 'billing',
   APP_CREATOR = 'appCreator',
-  define = 'define'
+  define = 'define',
+  ADMIN = "ADMIN"
 }

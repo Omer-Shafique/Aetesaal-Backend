@@ -1,68 +1,106 @@
 import Router from 'koa-router';
-import { Context, Next } from 'koa';
 import * as ctrl from '../controller/report';
 import authentication from '../middleware/authentication';
 import authorization from '../middleware/authorization';
-import { Role } from '../route/role'; 
+import { Role } from '../enum/role';
 
 const router = new Router({
   prefix: `/api/report`,
 });
 
-// Apply global middleware if needed
-// router.use(async (ctx: Context, next: Next) => {
-//   // Your middleware logic here
-//   await next();
-// });
+// Define the middleware function
+const myMiddleware = async (ctx: any, next : any) => {
+  try {
+    // Add your authorization logic here
+    await authorization(false, [Role.SUPER_ADMIN])(ctx, next);
+  } catch (error) {
+    ctx.throw(403, 'Forbidden');
+  }
+};
 
-// Apply authentication middleware
 router.use(authentication);
+router.use(myMiddleware);
 
-// Apply authorization middleware with specific roles
-router.use(authorization(false, [Role.SUPER_ADMIN, Role.ANOTHER_ROLE]));
-
-// Route for getting application execution time report
-router.get('/application/:applicationId/time', async (ctx: Context, next: Next) => {
-  try {
-    await ctrl.getApplicationExecutionTimeReport(ctx, next);
-  } catch (err) {
-    // Handle errors
-    console.error(err);
-    ctx.throw(500, 'Internal Server Error');
-  }
+router.get('/my-item', async (ctx: any, next) => {
+  await ctrl.getMyItemReport(ctx , next);
 });
 
-// Route for getting total executions count report
-router.get('/application/:applicationId/metrics', async (ctx: Context, next: Next) => {
-  try {
-    await ctrl.getTotalExecutionsCountReport(ctx, next);
-  } catch (err) {
-    // Handle errors
-    console.error(err);
-    ctx.throw(500, 'Internal Server Error');
-  }
+router.get('/workload/:userId', async (ctx: any, next) => {
+  await ctrl.getUserWorkloadReport(ctx, next);
 });
 
-// Route for getting total executions count graph
-router.get('/application/:applicationId/metrics/graph', async (ctx: Context, next: Next) => {
-  try {
-    await ctrl.getTotalExecutionsCountGraph(ctx, next);
-  } catch (err) {
-    // Handle errors
-    console.error(err);
-    ctx.throw(500, 'Internal Server Error');
-  }
+router.get('/application/:applicationId/time', async (ctx: any, next) => {
+  await ctrl.getApplicationExecutionTimeReport(ctx, next);
 });
 
-// Route for getting application execution location report
-router.get('/application/:applicationId/location', async (ctx: Context, next: Next) => {
-  try {
-    await ctrl.getApplicationExecutionLocationReport(ctx, next);
-  } catch (err) {
-    // Handle errors
-    console.error(err);
-    ctx.throw(500, 'Internal Server Error');
-  }
+router.get('/application/:applicationId/metrics', async (ctx : any, next) => {
+  await ctrl.getTotalExecutionsCountReport(ctx, next);
+});
+
+router.get('/application/:applicationId/metrics/graph', async (ctx : any, next) => {
+  await ctrl.getTotalExecutionsCountGraph(ctx, next);
+});
+
+router.get('/application/:applicationId/location', async (ctx: any, next) => {
+  await ctrl.getApplicationExecutionLocationReport(ctx, next);
 });
 
 export default router.routes();
+
+
+
+
+
+// import Router from 'koa-router';
+// import * as ctrl from '../controller/report';
+// import authentication from '../middleware/authentication';
+// import authorization from '../middleware/authorization';
+// import { Context, Next, ParameterizedContext } from 'koa';  // Import the necessary types
+
+// enum Role {  // Define the Role enum if it's missing
+//   SUPER_ADMIN,
+//   // Add other roles as needed
+// }
+
+// const router = new Router({
+//   prefix: `/api/report`,
+// });
+
+// // Define the middleware function
+// const myMiddleware = async (ctx: ParameterizedContext<any, Router.IRouterParamContext<any, {}>>, next: Next): Promise<void> => {
+//   try {
+//     // Add your authorization logic here
+//     await authorization(false, [Role.SUPER_ADMIN])(ctx, next);
+//   } catch (error) {
+//     ctx.throw(403, 'Forbidden');
+//   }
+// };
+
+// router.use(authentication);
+// router.use(myMiddleware);
+
+// router.get('/my-item', async (ctx: Context, next: Next) => {
+//   await ctrl.getMyItemReport(ctx, next);
+// });
+
+// router.get('/workload/:userId', async (ctx: Context, next: Next) => {
+//   await ctrl.getUserWorkloadReport(ctx, next);
+// });
+
+// router.get('/application/:applicationId/time', async (ctx: Context, next: Next) => {
+//   await ctrl.getApplicationExecutionTimeReport(ctx, next);
+// });
+
+// router.get('/application/:applicationId/metrics', async (ctx: Context, next: Next) => {
+//   await ctrl.getTotalExecutionsCountReport(ctx, next);
+// });
+
+// router.get('/application/:applicationId/metrics/graph', async (ctx: Context, next: Next) => {
+//   await ctrl.getTotalExecutionsCountGraph(ctx, next);
+// });
+
+// router.get('/application/:applicationId/location', async (ctx: Context, next: Next) => {
+//   await ctrl.getApplicationExecutionLocationReport(ctx, next);
+// });
+
+// export default router.routes();
