@@ -17,8 +17,8 @@ export const getTotalExecutionsCountReport = async (ctx: Context, next: () => Pr
   const user: string = ctx.state.user;
   const payload: ITimeApplicationReport = {
     applicationId: ctx.params.applicationId,
-    startDate: ctx.query.startDate || '', // Ensure it's a string, providing a default value if undefined
-    endDate: ctx.query.endDate || ''      // Ensure it's a string, providing a default value if undefined
+    startDate: ctx.query.startDate || '', 
+    endDate: ctx.query.endDate || ''      
   };
   ctx.state.data = await reportService.getTotalExecutionsCountReport(payload);
   await next();
@@ -28,8 +28,8 @@ export const getTotalExecutionsCountGraph = async (ctx: Context, next: () => Pro
   const user: string = ctx.state.user;
   const payload: ITimeApplicationReport = {
     applicationId: ctx.params.applicationId,
-    startDate: ctx.query.startDate || '', // Ensure it's a string, providing a default value if undefined
-    endDate: ctx.query.endDate || ''      // Ensure it's a string, providing a default value if undefined
+    startDate: ctx.query.startDate || '', 
+    endDate: ctx.query.endDate || ''      
   };
   ctx.state.data = await reportService.getTotalExecutionsCountGraph(payload);
   await next();
@@ -39,9 +39,17 @@ export const getApplicationExecutionLocationReport = async (ctx: Context, next: 
   const user: string = ctx.state.user;
   const payload: ITimeApplicationReport = {
     applicationId: ctx.params.applicationId,
-    startDate: ctx.query.startDate || '', // Ensure it's a string, providing a default value if undefined
-    endDate: ctx.query.endDate || ''      // Ensure it's a string, providing a default value if undefined
+    startDate: ctx.query.startDate || '', 
+    endDate: ctx.query.endDate || ''      
   };
   ctx.state.data = await reportService.getApplicationExecutionLocationReport(payload);
   await next();
 };
+export function getMyItemReport(_ctx: Context, _next: any) {
+  throw new Error('Function not implemented.');
+}
+
+export function getUserWorkloadReport(_ctx: Context, _next: any) {
+  throw new Error('Function not implemented.');
+}
+

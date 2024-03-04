@@ -39,3 +39,7 @@ export const deleteUser = async (ctx: Context, next: () => void) => {
     ctx.state.data = await userService.deleteUser(loggedInUserId, userId);
     await next();
 };
+
+export function changePassword(_ctx: any, _next: any) {
+  throw new Error('Function not implemented.');
+}
