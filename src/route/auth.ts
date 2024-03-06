@@ -54,23 +54,6 @@ router.post('/reset-password', async (ctx: any, next: Next) => {
 
 export default router;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // import Router from 'koa-router';
 // import { Context, Next } from 'koa';
 

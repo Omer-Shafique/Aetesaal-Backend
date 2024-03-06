@@ -31,6 +31,8 @@ export interface IExecutionWorkflowCount {
 }
 
 export interface IGetExecutionSelect {
+    application: any;
+    applicationExecutionWorkflows: any;
     id: string;
     applicationId: string;
     name: string;

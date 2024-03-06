@@ -25,7 +25,9 @@ export interface IApplicationWorkflowAttributes {
     userIds?: string[];
 }
 
-export interface IApplicationWorkflowInstance extends Model<IApplicationWorkflowAttributes>, IApplicationWorkflowAttributes {}
+export interface IApplicationWorkflowInstance extends Model<IApplicationWorkflowAttributes>, IApplicationWorkflowAttributes {
+    applicationWorkflowPermissions: any;
+}
 
 export interface IApplicationWorkflowModel extends ModelStatic<IApplicationWorkflowInstance> {
     associate(models: IModelFactory): void;

@@ -35,3 +35,7 @@ export const saveApplicationExecutionForm = async (applicationExecutionForm: IAp
 export const deleteApplicationExecutionForm = async (id: string) => {
     return Models.ApplicationExecutionForm.update({ isActive: false }, { where: { id } });
 };
+
+export function getByApplicationExecutionIdAndFieldId(_id: string, _fieldId: string) {
+    throw new Error('Function not implemented.');
+}

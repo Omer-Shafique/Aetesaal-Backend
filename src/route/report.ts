@@ -9,7 +9,7 @@ const router = new Router({
 });
 
 // Define the middleware function
-const myMiddleware = async (ctx: any, next : any) => {
+const myMiddleware = async (ctx: any, next: any) => {
   try {
     // Add your authorization logic here
     await authorization(false, [Role.SUPER_ADMIN])(ctx, next);
@@ -33,11 +33,11 @@ router.get('/application/:applicationId/time', async (ctx: any, next) => {
   await ctrl.getApplicationExecutionTimeReport(ctx, next);
 });
 
-router.get('/application/:applicationId/metrics', async (ctx : any, next) => {
+router.get('/application/:applicationId/metrics', async (ctx: any, next) => {
   await ctrl.getTotalExecutionsCountReport(ctx, next);
 });
 
-router.get('/application/:applicationId/metrics/graph', async (ctx : any, next) => {
+router.get('/application/:applicationId/metrics/graph', async (ctx: any, next) => {
   await ctrl.getTotalExecutionsCountGraph(ctx, next);
 });
 
@@ -46,10 +46,6 @@ router.get('/application/:applicationId/location', async (ctx: any, next) => {
 });
 
 export default router.routes();
-
-
-
-
 
 // import Router from 'koa-router';
 // import * as ctrl from '../controller/report';

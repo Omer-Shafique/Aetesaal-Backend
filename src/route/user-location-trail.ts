@@ -10,7 +10,7 @@ interface MyContext extends Context {
   token: any;
   accessToken: any;
   pagination: any;
-  state: DefaultState; 
+  state: DefaultState;
 }
 
 const router = new Router<MyContext>({
@@ -21,7 +21,7 @@ const authMiddleware: Middleware<MyContext> = async (ctx: ParameterizedContext<D
   await authentication(ctx, () => next());
 };
 
-router.use(authMiddleware); 
+router.use(authMiddleware);
 const authorizedGetAll: Middleware<MyContext> = async (ctx: any , next: Next) => {
   await authorization(true, [Role.SUPER_ADMIN])(ctx, () => next());
   await ctrl.getAll(ctx, () => {});

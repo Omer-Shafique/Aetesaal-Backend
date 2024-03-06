@@ -22,11 +22,7 @@ router.post('/', authorization(true, [Role.SUPER_ADMIN]), async (ctx: Context, _
 
 router.delete('/:id', authorization(true, [Role.SUPER_ADMIN]), async (ctx: Context, _next: Next) => {
   const id: string = ctx.params.id; // Extract id as string
-  await ctrl.deleteOfficeLocation(ctx); 
+  await ctrl.deleteOfficeLocation(ctx);
 });
-
-
-
-
 
 export default router.routes();

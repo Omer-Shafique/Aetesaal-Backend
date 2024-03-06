@@ -42,11 +42,6 @@ router.delete('/:userId/delete', async (ctx: any, next: Next) => {
 
 export default router.routes();
 
-
-
-
-
-
 // import Router from 'koa-router';
 // import { Context, Next } from 'koa';
 // import * as userCtrl from '../controller/user';

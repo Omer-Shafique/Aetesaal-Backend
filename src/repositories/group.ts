@@ -39,3 +39,7 @@ Group.init({
 
 // Export the Group model and its interfaces
 export { Group, IGroupInstance, IGroupAttributes };
+
+export function findUserGroupByGroupId(_groupId: number) {
+        throw new Error('Function not implemented.');
+    }

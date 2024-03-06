@@ -3,6 +3,7 @@ import { IApplicationFormFieldInstance } from './application-form-field';
 
 // Define the attributes interface
 interface ApplicationFormSectionAttributes {
+    [x: string]: any;
     id: string;
     applicationId: string;
     name: string;

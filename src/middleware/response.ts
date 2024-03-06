@@ -12,11 +12,11 @@ const responseHandler = async (ctx: Context, next: () => Promise<void>) => {
         message: ctx.state.message || 'success',
       },
       data: ctx.state.data,
-      body: function (_status: number): IResponseObject {
+      body (_status: number): IResponseObject {
         throw new Error('Function not implemented.');
       }
     };
-    
+
     if (ctx.pagination && ctx.method === 'GET') {
       responseBody.meta.limit = ctx.pagination.limit;
       responseBody.meta.offset = ctx.pagination.offset;

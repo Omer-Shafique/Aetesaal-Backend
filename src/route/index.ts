@@ -23,7 +23,7 @@ const router = new Router({
 });
 
 // Extract middleware functions from router instances
-const routesToExport: IMiddleware<any, {}>[] = [
+const routesToExport: Array<IMiddleware<any, {}>> = [
   router.routes(),
   ping,
   auth,

@@ -4,5 +4,5 @@ export enum Role {
   BILLING = 'billing',
   APP_CREATOR = 'appCreator',
   define = 'define',
-  ADMIN = "ADMIN"
+  ADMIN = 'ADMIN'
 }

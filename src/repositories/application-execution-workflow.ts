@@ -104,3 +104,11 @@ export const define = (sequelize: Sequelize): IApplicationExecutionWorkflowModel
 
     return model;
 };
+export function saveApplicationExecutionWorkflow(_payload: IApplicationExecutionWorkflowAttributes) {
+    throw new Error('Function not implemented.');
+}
+
+export function findById(_id: string) {
+    throw new Error('Function not implemented.');
+}
+

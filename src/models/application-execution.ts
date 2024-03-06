@@ -3,6 +3,7 @@ import { IUserInstance } from '../models/user';
 
 // Define the attributes interface for ApplicationExecution
 export interface IApplicationExecutionAttributes {
+  [x: string]: any;
   applicationId?: string;
   startedAt?: Date;
   status?: string;

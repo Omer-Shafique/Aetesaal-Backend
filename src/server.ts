@@ -2,8 +2,9 @@ import * as Bunyan from 'bunyan';
 import Koa from 'koa';
 import koaBody from 'koa-body';
 import helmet from 'koa-helmet';
-import * as mount from 'koa-mount';
-import * as serve from 'koa-static';
+import mount from 'koa-mount';
+import serve from 'koa-static';
+
 import cors from 'koa2-cors';
 
 import config from './config/index';
