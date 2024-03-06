@@ -1,6 +1,7 @@
 import { DataTypes, Model, Sequelize } from 'sequelize';
 import { IModelFactory } from '../models/index';
 import { IApplicationWorkflowAttributes } from '../models/application-workflow';
+import { ApplicationExecutionStatus } from '../enum/application';
 
 export interface IApplicationExecutionWorkflowAttributes {
     id?: string;
@@ -109,6 +110,14 @@ export function saveApplicationExecutionWorkflow(_payload: IApplicationExecution
 }
 
 export function findById(_id: string) {
+    throw new Error('Function not implemented.');
+}
+
+export function updateStatusById(_WITHDRAW: ApplicationExecutionStatus, _executionWorkflowId: string) {
+    throw new Error('Function not implemented.');
+}
+
+export function findByExecutionAndWorkflowId(_executionId: string, _workflowId: string) {
     throw new Error('Function not implemented.');
 }
 

@@ -39,3 +39,7 @@ export const deleteApplicationExecutionForm = async (id: string) => {
 export function getByApplicationExecutionIdAndFieldId(_id: string, _fieldId: string) {
     throw new Error('Function not implemented.');
 }
+export function getExecutionIdsByStartEndDate(_applicationId: string, _startDate: string, _endDate: string, _status: string) {
+    throw new Error('Function not implemented.');
+}
+

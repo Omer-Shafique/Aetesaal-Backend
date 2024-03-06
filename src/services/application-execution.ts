@@ -27,7 +27,7 @@ import {
     ApplicationWorkflowType,
     ApplicationWorkflowPermissionType,
     ApplicationWorkflowFieldPermission,
-    ApplicationWorkflowAssignTo
+    ApplicationWorkflowAssignTo 
 } from '../enum/application';
 import { IApplicationExecutionWorkflowAttributes } from '../models/application-execution-workflow';
 import {
@@ -36,7 +36,6 @@ import {
 } from '../interface/application';
 import { PERMISSION_STATUS_MAPPING } from '../constants/application';
 import { sendPushNotification } from './fcm';
-
 
 export const getAll = async (loggedInUser: any): Promise<IApplicationExecutionInstance[]> => {
     return applicationExecutionRepo.getAll(loggedInUser.userId, false);
@@ -348,8 +347,6 @@ export const getExecutionParticipatedLoggedInUserIdQuery =
         return applicationExecutions;
     };
 
-
-
 const checkWorkflowPermission = async (
     plainExecution: IApplicationExecutionAttributes,
     applicationWorkflowId: string,
@@ -582,7 +579,6 @@ export const getExecutionParticipatedUsers =
         return dbUsers;
     };
 
-
 // export function saveApplicationExecution(_applicationId: string, _userId: string, _payload: any): any {
 //     throw new Error('Function not implemented.');
 // }
@@ -618,10 +614,6 @@ export const getExecutionParticipatedUsers =
 // export function withdraw(_userId: string, _executionId: string, _executionWorkflowId: string): any {
 //     throw new Error('Function not implemented.');
 // }
-
-
-
-
 
 export const saveApplicationExecution = async (
     applicationId: string,
@@ -675,9 +667,6 @@ export const saveApplicationExecution = async (
     await applicationExecutionRepo.saveApplicationExecution(applicationExecution);
     return execution;
 };
-
-
-
 
 export const saveApplicationExecutionForm = async (
     applicationId: string,
@@ -757,158 +746,191 @@ export const publishApplicationExecution = async (
     return { success: true };
 };
 
-export const saveApplicationExecutionWorkflow =
-    async (applicationId: string, user: any, payload: IApplicationExecutionWorkflowAttributes) => {
-        await validate({ applicationId, ...payload }, joiSchema.saveApplicationExecutionWorkflow);
-        const savedApplicationExecution = await applicationExecutionRepo.findByIdForValidation(
-            payload.applicationExecutionId);
-        if (!savedApplicationExecution) {
-            throw boom.badRequest('Invalid application execution id');
-        }
-        if (!payload.id) {
+export const saveApplicationExecutionWorkflow = async (
+    applicationId: string,
+    user: any,
+    payload: IApplicationExecutionWorkflowAttributes
+) => {
+    await validate({ applicationId, ...payload }, joiSchema.saveApplicationExecutionWorkflow);
+
+    // const savedApplicationExecution = await applicationExecutionRepo.findByIdForValidation(
+    //     payload.applicationExecutionId
+    // );
+    const savedApplicationExecution = await applicationExecutionRepo.findByIdForValidation();
+
+    
+    if (!savedApplicationExecution) {
+        throw boom.badRequest('Invalid application execution id');
+    }
+
+    if (!payload.id) {
+        throw boom.badRequest('Invalid id');
+    }
+
+    // const savedExecutionWorkflow = await applicationExecutionWorkflowRepo.findById(payload.id);
+    //     if (!savedExecutionWorkflow) {
+    //     throw boom.badRequest('Invalid id');
+    //     }
+
+    const savedExecutionWorkflow = await applicationExecutionWorkflowRepo.findById(payload.id);
+        if (savedExecutionWorkflow == null) { 
             throw boom.badRequest('Invalid id');
         }
-        const savedExecutionWorkflow = await applicationExecutionWorkflowRepo.findById(payload.id);
-        if (!savedExecutionWorkflow) {
-            throw boom.badRequest('Invalid id');
+
+    let toSave: any = savedExecutionWorkflow; 
+
+    if (payload.clarificationDetails && payload.clarificationDetails.userId) {
+        const clarificationUser = await userRepo.findById(payload.clarificationDetails.userId);
+        if (!clarificationUser) {
+            throw boom.badRequest('Invalid clarification user');
         }
-        let toSave = savedExecutionWorkflow.get({ plain: true });
-        if (payload.clarificationDetails && payload.clarificationDetails.userId) {
-            const clarificationUser = await userRepo.findById(payload.clarificationDetails.userId);
-            if (!clarificationUser) {
-                throw boom.badRequest('Invalid clarification user');
-            }
-            payload.clarificationUserId = payload.clarificationDetails.userId;
+        payload.clarificationUserId = payload.clarificationDetails.userId;
+    }
+
+    if (toSave.status === ApplicationExecutionStatus.APPROVED ||
+        toSave.status === ApplicationExecutionStatus.REJECT) {
+        throw boom.badRequest('Execution is already approved or reject, cannot be modified now');
+    }
+
+    if (payload.comments) {
+        for (const comment of payload.comments) {
+            comment.userId = comment.userId || user.id;
+            comment.userName = comment.userName || `${user.firstName} ${user.lastName}`;
         }
-        if (toSave.status === ApplicationExecutionStatus.APPROVED ||
-            toSave.status === ApplicationExecutionStatus.REJECT) {
-            throw boom.badRequest('Execution is already approved or reject, cannot be modified now');
-        }
-        if (payload.comments) {
-            for (const comment of payload.comments) {
-                comment.userId = comment.userId || user.id;
-                comment.userName = comment.userName || `${user.firstName} ${user.lastName}`;
-            }
-        }
-        if (payload.status === ApplicationExecutionStatus.REJECT) {
-            payload.comments = payload.comments || [];
-            payload.comments.unshift({
-                userId: user.id,
-                time: new Date(),
-                comment: payload.rejectionDetails.comment,
-                userName: `${user.firstName} ${user.lastName}`
-            });
-        } else if (payload.status === ApplicationExecutionStatus.CLARITY) {
-            payload.comments = payload.comments || [];
-            payload.comments.unshift({
-                userId: user.id,
-                time: new Date(),
-                comment: payload.clarificationDetails.comment,
-                userName: `${user.firstName} ${user.lastName}`
-            });
-        }
-        toSave = {
-            id: toSave.id,
-            // applicationExecutionId: toSave.applicationExecutionId,
-            applicationWorkflowId: toSave.applicationWorkflowId,
-            updatedBy: user.id,
-            ...payload
-        };
-        await applicationExecutionWorkflowRepo.saveApplicationExecutionWorkflow(toSave);
-        if (payload.status === ApplicationExecutionStatus.APPROVED) {
-            // move workflow to the next
-            const applicationWorkflows = await applicationWorkflowRepo.getByApplicationIdWithoutRelation(applicationId);
-            const indexOfWorkflow = applicationWorkflows.findIndex(col => col.id === toSave.applicationWorkflowId);
-            if (indexOfWorkflow > -1 && applicationWorkflows.length >= indexOfWorkflow + 2) {
-                const newExecutionWorkflow: IApplicationExecutionWorkflowAttributes = {
-                    applicationExecutionId: payload.applicationExecutionId,
-                    applicationWorkflowId: applicationWorkflows[indexOfWorkflow + 1].id,
-                    comments: toSave.comments,
-                    status: ApplicationExecutionStatus.DRAFT,
-                    createdBy: user.id
-                };
-                await applicationExecutionWorkflowRepo.saveApplicationExecutionWorkflow(newExecutionWorkflow);
-                const toSaveExecution = savedApplicationExecution.get({ plain: true });
-                await applicationExecutionRepo.saveApplicationExecution({
-                    ...toSaveExecution,
-                    updatedAt: new Date(),
-                    updatedBy: user.id
-                });
-            } else {
-                // if no workflow found, mark execution as approved
-                const toSaveExecution = savedApplicationExecution.get({ plain: true });
-                await applicationExecutionRepo.saveApplicationExecution({
-                    ...toSaveExecution,
-                    status: ApplicationExecutionStatus.APPROVED,
-                    updatedBy: user.id
-                });
-                // send notification to initiator
-                if (toSaveExecution.createdByUser && toSaveExecution.createdByUser.deviceId) {
-                    await sendPushNotification(toSaveExecution.createdByUser.deviceId, {
-                        executionId: toSaveExecution.id
-                    }, 'Execution Completed', 'Your initiated execution has completed');
-                }
-            }
-        } else {
-            // mark execution as rejected or clarity
-            const toSaveExecution = savedApplicationExecution.get({ plain: true });
-            await applicationExecutionRepo.saveApplicationExecution({
-                ...toSaveExecution,
-                status: payload.status === ApplicationExecutionStatus.DRAFT ?
-                    ApplicationExecutionStatus.IN_PROGRESS : payload.status,
-                updatedBy: user.id
-            });
-        }
-        return { success: true };
+    }
+
+    if (payload.status === ApplicationExecutionStatus.REJECT) {
+        payload.comments = payload.comments || [];
+        payload.comments.unshift({
+            userId: user.id,
+            time: new Date(),
+            comment: payload.rejectionDetails.comment,
+            userName: `${user.firstName} ${user.lastName}`
+        });
+    } else if (payload.status === ApplicationExecutionStatus.CLARITY) {
+        payload.comments = payload.comments || [];
+        payload.comments.unshift({
+            userId: user.id,
+            time: new Date(),
+            comment: payload.clarificationDetails.comment,
+            userName: `${user.firstName} ${user.lastName}`
+        });
+    }
+
+    toSave = {
+        id: toSave.id,
+        applicationWorkflowId: toSave.applicationWorkflowId,
+        updatedBy: user.id,
+        ...payload
     };
 
-export const publishApplicationExecutionWorkflow =
-    async (applicationId: string, applicationExecutionId: string, applicationExecutionWorkflowId: string) => {
-        await validate({
-            applicationId,
-            applicationExecutionId,
-            applicationExecutionWorkflowId
-        }, joiSchema.publishApplicationExecutionWorkflow);
-        const savedApp = await applicationRepo.findById(applicationId);
-        if (!savedApp) {
-            throw boom.badRequest('Invalid application id');
-        }
-        const savedApplicationExecution = await applicationExecutionRepo.findByIdForValidation(applicationExecutionId);
-        if (!savedApplicationExecution) {
-            throw boom.badRequest('Invalid application execution id');
-        }
-        if (!applicationExecutionWorkflowId) {
-            throw boom.badRequest('Invalid id');
-        }
-        const savedExecutionWorkflow = await applicationExecutionWorkflowRepo.findById(applicationExecutionWorkflowId);
-        if (!savedExecutionWorkflow) {
-            throw boom.badRequest('Invalid id');
-        }
-        const toSave = savedExecutionWorkflow.get({ plain: true });
-        toSave.status = ApplicationExecutionStatus.APPROVED;
-        await applicationExecutionWorkflowRepo.saveApplicationExecutionWorkflow(toSave);
-        // move workflow to the next
+    await applicationExecutionWorkflowRepo.saveApplicationExecutionWorkflow(toSave);
+
+    if (payload.status === ApplicationExecutionStatus.APPROVED) {
         const applicationWorkflows = await applicationWorkflowRepo.getByApplicationIdWithoutRelation(applicationId);
         const indexOfWorkflow = applicationWorkflows.findIndex(col => col.id === toSave.applicationWorkflowId);
-        if (indexOfWorkflow > -1 && applicationWorkflows.length >= indexOfWorkflow + 1) {
-            const payload: IApplicationExecutionWorkflowAttributes = {
-                applicationExecutionId,
-                applicationWorkflowId: applicationWorkflows[indexOfWorkflow].id,
-                status: ApplicationExecutionStatus.DRAFT
+
+        if (indexOfWorkflow > -1 && applicationWorkflows.length >= indexOfWorkflow + 2) {
+            const newExecutionWorkflow: IApplicationExecutionWorkflowAttributes = {
+                applicationExecutionId: payload.applicationExecutionId,
+                applicationWorkflowId: applicationWorkflows[indexOfWorkflow + 1].id,
+                comments: toSave.comments,
+                status: ApplicationExecutionStatus.DRAFT,
+                createdBy: user.id
             };
-            await applicationExecutionWorkflowRepo.saveApplicationExecutionWorkflow(payload);
-        } else {
-            // if no workflow found, mark execution as approved
+
+            await applicationExecutionWorkflowRepo.saveApplicationExecutionWorkflow(newExecutionWorkflow);
+
+            const toSaveExecution = savedApplicationExecution; // Corrected - removed .get({ plain: true })
             await applicationExecutionRepo.saveApplicationExecution({
-                id: applicationExecutionId,
-                status: ApplicationExecutionStatus.APPROVED
+                ...toSaveExecution,
+                updatedAt: new Date(),
+                updatedBy: user.id
             });
+        } else {
+            const toSaveExecution = savedApplicationExecution; // Corrected - removed .get({ plain: true })
+            await applicationExecutionRepo.saveApplicationExecution({
+                ...toSaveExecution,
+                status: ApplicationExecutionStatus.APPROVED,
+                updatedBy: user.id
+            });
+
+            if (toSaveExecution.createdByUser && toSaveExecution.createdByUser.deviceId) {
+                await sendPushNotification(toSaveExecution.createdByUser.deviceId, {
+                    executionId: toSaveExecution.id
+                }, 'Execution Completed', 'Your initiated execution has completed');
+            }
         }
-        return { success: true };
-    };
+    } else {
+        const toSaveExecution = savedApplicationExecution; // Corrected - removed .get({ plain: true })
+        await applicationExecutionRepo.saveApplicationExecution({
+            ...toSaveExecution,
+            status: payload.status === ApplicationExecutionStatus.DRAFT ?
+                ApplicationExecutionStatus.IN_PROGRESS : payload.status,
+            updatedBy: user.id
+        });
+    }
+
+    return { success: true };
+};
+
+export const publishApplicationExecutionWorkflow = async (applicationId: string, applicationExecutionId: string, applicationExecutionWorkflowId: string) => {
+    await validate({
+        applicationId,
+        applicationExecutionId,
+        applicationExecutionWorkflowId
+    }, joiSchema.publishApplicationExecutionWorkflow);
+    
+    const savedApp = await applicationRepo.findById(applicationId);
+    if (!savedApp) {
+        throw boom.badRequest('Invalid application id');
+    }
+    
+    const savedApplicationExecution = await applicationExecutionRepo.findByIdForValidation();
+    if (!savedApplicationExecution) {
+        throw boom.badRequest('Invalid application execution id');
+    }
+    
+    if (!applicationExecutionWorkflowId) {
+        throw boom.badRequest('Invalid id');
+    }
+    
+    // const savedExecutionWorkflow = await applicationExecutionWorkflowRepo.findById(applicationExecutionWorkflowId);
+    const savedExecutionWorkflow: any = await applicationExecutionWorkflowRepo.findById(applicationExecutionWorkflowId);
+
+
+    if (savedExecutionWorkflow == null) {
+        throw boom.badRequest('Invalid id');
+    }
+    
+    savedExecutionWorkflow.status = ApplicationExecutionStatus.APPROVED;
+    await applicationExecutionWorkflowRepo.saveApplicationExecutionWorkflow(savedExecutionWorkflow);
+    
+    // move workflow to the next
+    const applicationWorkflows = await applicationWorkflowRepo.getByApplicationIdWithoutRelation(applicationId);
+    const indexOfWorkflow = applicationWorkflows.findIndex(col => col.id === savedExecutionWorkflow);
+    
+    if (indexOfWorkflow > -1 && applicationWorkflows.length >= indexOfWorkflow + 1) {
+        const payload: IApplicationExecutionWorkflowAttributes = {
+            applicationExecutionId,
+            applicationWorkflowId: applicationWorkflows[indexOfWorkflow].id,
+            status: ApplicationExecutionStatus.DRAFT
+        };
+        await applicationExecutionWorkflowRepo.saveApplicationExecutionWorkflow(payload);
+    } else {
+        // if no workflow found, mark execution as approved
+        await applicationExecutionRepo.saveApplicationExecution({
+            id: applicationExecutionId,
+            status: ApplicationExecutionStatus.APPROVED
+        });
+    }
+    
+    return { success: true };
+};
 
 export const deleteApplicationExecution = async (id: string, loggedInUserId: string) => {
-    const applicationExecution = await applicationExecutionRepo.findByIdForValidation(id);
+    const applicationExecution = await applicationExecutionRepo.findByIdForValidation();
+    // const applicationExecution = await applicationExecutionRepo.findByIdForValidation(id);
     if (!applicationExecution) {
         throw boom.badRequest('Invalid application execution id');
     }
@@ -918,7 +940,7 @@ export const deleteApplicationExecution = async (id: string, loggedInUserId: str
 
 export const reassignWorkflow = async (payload: IReassignExecutionRequest) => {
     await validate(payload, joiSchema.reassignWorkflow);
-    const applicationExecution = await applicationExecutionRepo.findById(payload.executionId);
+    const applicationExecution = await applicationExecutionRepo.findById();
     if (!applicationExecution) {
         throw boom.badRequest('Invalid application execution id');
     }
@@ -931,44 +953,56 @@ export const reassignWorkflow = async (payload: IReassignExecutionRequest) => {
         throw boom.badRequest('Invalid application workflow id');
     }
     const executionWorkflow = await applicationExecutionWorkflowRepo.findByExecutionAndWorkflowId(
-        payload.executionId, payload.workflowId);
-    if (!executionWorkflow) {
+        payload.executionId, payload.workflowId
+    );
+    if (executionWorkflow == null) {
         throw boom.badRequest('Invalid application workflow id');
     }
-    const updateExecutionWorkflow: any = {
-        ...executionWorkflow.get({ plain: true }),
+    const updateExecutionWorkflow = {
+        ...(typeof executionWorkflow === 'object' ? executionWorkflow : {}),
         userPermissionId: payload.userId
     };
+    
     await applicationWorkflowPermissionRepo.hardDeleteWorkflowPermissionByWorkflowId(payload.workflowId);
-    await applicationExecutionWorkflowRepo.saveApplicationExecutionWorkflow(updateExecutionWorkflow);
+    // await applicationExecutionWorkflowRepo.saveApplicationExecutionWorkflow(updateExecutionWorkflow);
+    await applicationExecutionWorkflowRepo.saveApplicationExecutionWorkflow(updateExecutionWorkflow as IApplicationExecutionWorkflowAttributes);
+
     return { success: true };
 };
 
 export const withdraw = async (loggedInUserId: string, executionId: string, executionWorkflowId: string) => {
     await validate({ loggedInUserId, executionId }, joiSchema.withdraw);
-    const applicationExecution = await applicationExecutionRepo.findByIdForValidation(executionId);
+    let applicationExecution: any;
+    let executionWorkflow: any;
+
+    applicationExecution = await applicationExecutionRepo.findByIdForValidation();
+    // const applicationExecution = await applicationExecutionRepo.findByIdForValidation(executionId);
     if (!applicationExecution) {
         throw boom.badRequest('Invalid application execution id');
     }
     if (applicationExecution.createdBy !== loggedInUserId) {
         throw boom.unauthorized('You are not authorize to withdraw this execution');
     }
-    const executionWorkflow = await applicationExecutionWorkflowRepo.findById(executionWorkflowId);
-    if (!executionWorkflow) {
+
+    executionWorkflow = await applicationExecutionWorkflowRepo.findById(executionWorkflowId);
+    if (executionWorkflow == null) {
         throw boom.badRequest('Invalid application execution id');
     }
-    if (executionWorkflow.applicationWorkflow && !executionWorkflow.applicationWorkflow.canWithdraw) {
+    
+    if ((executionWorkflow as any).applicationWorkflow && !(executionWorkflow as any).applicationWorkflow.canWithdraw) {
         throw boom.badRequest('Withdraw is not allowed for this workflow');
     }
+
     await applicationExecutionWorkflowRepo.updateStatusById(ApplicationExecutionStatus.WITHDRAW, executionWorkflowId);
     const execution = {
-        ...applicationExecution.get({ plain: true }),
+        ...(applicationExecution.get({ plain: true }) as any),
         id: executionId,
         status: ApplicationExecutionStatus.WITHDRAW,
     };
     await applicationExecutionRepo.saveApplicationExecution(execution);
     return { success: true };
 };
+
 
 export const deleteExecutionByApplicationId = async (payload: IDeleteExecutionRequest) => {
     await validate(payload, joiSchema.deleteExecutionByApplicationId);
@@ -984,12 +1018,12 @@ export const deleteExecutionByApplicationId = async (payload: IDeleteExecutionRe
     }
     const executions = await applicationExecutionRepo.getExecutionIdsByStartEndDate(payload.applicationId,
         payload.startDate, payload.endDate, payload.status);
-    for (const execution of executions) {
+    for (const execution of executions as any[]) { 
         await applicationExecutionRepo.deleteApplicationExecution(execution.id, payload.loggedInUserId);
     }
     const executionForms = await applicationExecutionFormRepo.getExecutionIdsByStartEndDate(payload.applicationId,
         payload.startDate, payload.endDate, payload.status);
-    for (const execution of executionForms) {
+    for (const execution of executionForms as unknown as any[]) { 
         if (execution.value && fs.existsSync(`./upload/${execution.value}`)) {
             fs.unlinkSync(`./upload/${execution.value}`);
         }
